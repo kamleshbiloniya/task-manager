@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="38" viewBox="0 0 180 38" fill="none">
+  <rect x="3" y="3" width="32" height="32" rx="4" fill="#4F46E5" />
+  <path d="M11 19L17 25L27 13" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="45" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333333">Task Manager</text>
+</svg>
