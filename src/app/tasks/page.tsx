@@ -30,6 +30,15 @@ export default function TasksPage() {
       return;
     }
     
+    // Check if we just came from authentication
+    const justAuthenticated = localStorage.getItem('justAuthenticated');
+    
+    // Always fetch tasks, but log differently if coming from auth
+    if (justAuthenticated === 'true') {
+      console.log('Just authenticated via Google OAuth, fetching tasks...');
+      localStorage.removeItem('justAuthenticated'); // Clear the flag
+    }
+    
     fetchTasks();
   }, [router]);
 

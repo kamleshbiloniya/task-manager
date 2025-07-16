@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function Home() {
@@ -11,6 +12,51 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  // Check for auth errors when component mounts
+  useEffect(() => {
+    // Check for error from callback page
+    const authError = localStorage.getItem('authError');
+    if (authError) {
+      setError(authError);
+      localStorage.removeItem('authError');
+    }
+  }, []);
+  
+  // Helper function to show notifications
+  const setNotification = (message: string, type: 'success' | 'error' | 'info') => {
+    if (type === 'success') {
+      setSuccess(message);
+      setError(null);
+    } else if (type === 'error') {
+      setError(message);
+      setSuccess(null);
+    } else {
+      // For info messages, we'll use success with a different style
+      setSuccess(`Info: ${message}`);
+      setError(null);
+    }
+  };
+  
+  // Handle Google login with same-tab redirect
+  const handleGoogleLogin = () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      
+      // Show message that we're initiating Google auth
+      setSuccess('Initiating Google authentication...');
+      
+      // The backend is configured to redirect to our callback endpoint
+      window.location.href = 'http://127.0.0.1:8080/api/auth/oauth';
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during Google login');
+      console.error('Google login error:', err);
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,10 +226,33 @@ export default function Home() {
               
               <button
                 type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {loading ? 'Logging in...' : 'Login'}
+              </button>
+              
+              <div className="mt-4 relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                className="mt-4 w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-medium py-3 px-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
+                disabled={loading}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512" className="w-5 h-5">
+                  <path fill="#4285F4" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/>
+                </svg>
+                Login with Google
               </button>
             </form>
           ) : (
